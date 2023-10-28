@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .input-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .result-container {
+        display: flex;
+        gap: 20px;
+    }
+</style>
+<script>
+    window.onload = function () {
+        const [endOfProgramInput, lengthOfProgramInput] = getInputElements()
+
+        endOfProgramInput.addEventListener('change', handleChange)
+        lengthOfProgramInput.addEventListener('change', handleChange)
+    }
+
+    function handleChange() {
+        try {
+            const [endOfProgram, lengthOfProgram] = getTimeDetailsInUnixTimestamp()
+            const [resultHoursValue, resultMinutesValue] = calculateResult(endOfProgram, lengthOfProgram)
+
+            displayResult(resultHoursValue, resultMinutesValue)
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    function displayResult(hours, minutes) {
+        const hoursResultContainer = document.getElementById('hours')
+        const minutesResultContainer = document.getElementById('minutes')
+
+        if (
+            typeof hours === "number" &&
+            typeof minutes === "number" &&
+            !isNaN(hours) &&
+            !isNaN(minutes)
+        ) {
+            hoursResultContainer.innerText = parseInt(hours) >= 1 ? hours : 0
+            minutesResultContainer.innerText = parseInt(minutes) >= 1 ? minutes : 0
+        }
+    }
+
+    function getInputElements() {
+        return [
+            document.getElementById('end-of-program-input'),
+            document.getElementById('length-of-program')
+        ]
+    }
+
+    function getTimeDetailsInUnixTimestamp() {
+        const [endOfProgramInput, lengthOfProgramInput] = getInputElements()
+
+        const parsedEndOfProgramValue = new Date(endOfProgramInput.value).getTime()
+        const parsedLengthOfProgramValue = parseInt(lengthOfProgramInput.value)
+
+        if (
+            !isNaN(parsedEndOfProgramValue) &&
+            !isNaN(parsedLengthOfProgramValue)
+        ) {
+            return [
+                parsedEndOfProgramValue / 1000,
+                parsedLengthOfProgramValue,
+            ]
+        }
+
+        return []
+    }
+
+    function calculateResult(endOfProgram, lengthOfProgram) {
+        const nowAsTimestamp = Math.floor((new Date()).getTime() / 1000);
+        const resultInTimestamp = endOfProgram - nowAsTimestamp
+
+        const resultHoursValue = Math.floor(resultInTimestamp / 3600)
+        const resultMinutesValue = Math.floor((resultInTimestamp % 3600) / 60)
+
+        return [
+            resultHoursValue,
+            resultMinutesValue
+        ]
+    }
+
+</script>
+
+<body>
+    <div class="input-container">
+        <label for="end-of-program-input">
+            End of the program
+        </label>
+        <input id="end-of-program-input" type="datetime-local" />
+    </div>
+    <div class="input-container">
+        <label for="length-of-program">
+            Length of the program (in minutes)
+        </label>
+        <input id="length-of-program" type="number" />
+    </div>
+    <div class="result-container">
+        <div>
+            <p id="hours"></p>
+            <strong>Hours</strong>
+        </div>
+        <div>
+            <p id="minutes"></p>
+            <strong>Minutes</strong>
+        </div>
+    </div>
+</body>
+
+</html>
